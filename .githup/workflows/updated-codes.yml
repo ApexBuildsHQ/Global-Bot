@@ -1,0 +1,36 @@
+name: Automatic Game Codes Scraper
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  scrape_and_update:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Initialize NPM and Install Dependencies
+      run: |
+        npm init -y
+        npm install axios cheerio
+
+    - name: Execute Scraper Script
+      run: node fetch_codes.js
+
+    - name: Commit and Push Updated Codes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+        git add game_codes.json
+        git commit -m "Auto-update game codes [skip ci]" || exit 0
+        git push
