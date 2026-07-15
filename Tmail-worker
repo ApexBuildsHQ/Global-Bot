@@ -1,0 +1,70 @@
+export default {
+  async email(message, env, ctx) {
+    const reader = message.raw.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let rawContent = "";
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      rawContent += decoder.decode(value, { stream: true });
+    }
+
+    await env.DB.prepare(
+      "INSERT INTO emails (recipient, sender, subject, raw_content) VALUES (?, ?, ?, ?)"
+    ).bind(
+      message.to.toLowerCase().trim(),
+      message.from,
+      message.headers.get("subject") || "",
+      rawContent
+    ).run();
+  },
+
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const emailParam = url.searchParams.get("email")?.toLowerCase().trim();
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "*",
+      "Content-Type": "application/json"
+    };
+
+    if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+    if (url.pathname === "/messages" && emailParam) {
+      try {
+        const { results } = await env.DB.prepare(
+          "SELECT sender, subject, raw_content, timestamp FROM emails WHERE recipient = ?"
+        ).bind(emailParam).all();
+
+        const formattedResults = results.map(msg => ({
+          from: msg.sender,
+          subject: msg.subject,
+          body: msg.raw_content, // Matches msg.body in your logic.js screenshot
+          timestamp: new Date(msg.timestamp).getTime()
+        }));
+
+        return new Response(JSON.stringify(formattedResults), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    if (url.pathname === "/api/check" && emailParam) {
+      const result = await env.DB.prepare("SELECT id FROM emails WHERE recipient = ? LIMIT 1").bind(emailParam).all();
+      return new Response(JSON.stringify({ exists: result.results.length > 0 }), { headers: corsHeaders });
+    }
+
+    return new Response("OK", { headers: corsHeaders });
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(
+      env.DB.prepare(
+        "DELETE FROM emails WHERE timestamp < datetime('now', '-20 minutes')"
+      ).run()
+    );
+  }
+};
+
