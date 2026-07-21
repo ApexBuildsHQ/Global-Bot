@@ -43,4 +43,21 @@
   "vipBtn": "🔓 Get VIP Codes & Robux/Diamonds",
   "vipSuccess": "🎉 **Verification Complete!**\nHere are the rest of your VIP Premium Codes:\n\n",
   "noVipCodes": "No additional VIP codes available in this cycle."
+  "tempMailWelcome": "📬 **Temporary Email Service**\nCreate disposable email addresses instantly to protect your privacy and bypass registration spam!",
+  "currentEmailLabel": "Your Active Disposable Email",
+  "tempMailInstruction": "Copy the address above and use it on any website. Click **Check Inbox** to read verification codes (OTP) instantly!",
+  "genNewMailBtn": "🎲 Generate New Email",
+  "refreshInboxBtn": "🔄 Check Inbox",
+  "newMailCreated": "New Temporary Email Generated",
+  "noActiveMail": "⚠️ You don't have an active temporary email. Click **Generate New Email** below 👇",
+  "inboxEmpty": "Your inbox is currently empty. No messages received yet.",
+  "inboxHeader": "Received Messages",
+  "fromLabel": "From",
+  "subjectLabel": "Subject",
+  "previewLabel": "Message Snippet",
+  "noSubject": "No Subject",
+  "tempMailError": "❌ Unable to communicate with mail server. Please try again in a moment.",
+  "adUnlockTitle": "Unlock New Email",
+  "adUnlockDesc": "Click the sponsor link below to confirm and receive your new disposable email address:",
+  "adBtnLabel": "🚀 Click to Generate Email"
 }
